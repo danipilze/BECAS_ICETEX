@@ -6,6 +6,7 @@ url="https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente
 browser = mechanicalsoup.StatefulBrowser()
 browser.open(url)
 
+#seleccionar todas las becas
 browser.select_form("#form1")
 browser["RBLOpcionBuscar"] = "Todas"
 response = browser.submit_selected()
