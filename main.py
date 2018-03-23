@@ -14,8 +14,14 @@ response = browser.submit_selected()        # enviamos el fomulario y capturamos
 # en este punto ya tenemos la tabla #GVConvocatorias con la lista de becas
 # hay que proceder a realizar la extracción de datos teniendo en cuenta la paginación
 
+# obtener el soup a partir de la respuesta a la acción anterior
 soup = BeautifulSoup(response.text,"html.parser")
+# obtener la tabla que contiene las becas
+table = soup.find(lambda tag: tag.name=='table' and tag.has_key('id') and tag['id']=="GVConvocatorias")
+# obtener cada fila de la tabla de becas
+rows = table.findAll(lambda tag: tag.name=='tr')
+
 children = list(soup.children)
 
-
-print(children)
+print(rows)
+#print(children)
