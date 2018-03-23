@@ -8,7 +8,10 @@ Autor: Daniel Amariles
 
 Lenguaje: Python 3
 
+URL consultada: https://www.icetex.gov.co/dnnpro5/es-co/becas/becasenelexterior/becasvigentes.aspx
+
 Ubicación archivo salida:
+
 
 
 ## Datos
