@@ -2,6 +2,12 @@ import mechanicalsoup
 import requests
 from bs4 import BeautifulSoup
 
+# crear la lista de convocatorias
+scholarchipCalls=[]
+# añadir la cabecera
+headerList=["País","Programa","Area","Oferente","Tipo","Título"]
+scholarchipCalls.append(headerList)
+
 # URL de la página del ICETEX a consultar las becas
 url = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=true"
 browser = mechanicalsoup.StatefulBrowser()  # se define el browser
@@ -34,7 +40,12 @@ rows = soup.findAll("span", { "class" : "label1" })
 
 # para cada fila
 for row in rows:
-           print(row)
+    tupla = ();
+    print(row)
+    if row.has_attr("id"):
+        id = row["id"]
+        value = row[0]
+        print(id, value)
 
 
 # print(response2.text)
