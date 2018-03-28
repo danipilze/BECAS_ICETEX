@@ -15,19 +15,23 @@ terms_dict["LblInfoPais"] = "País"
 terms_dict["LblInfoPrograma"] = "Programa"
 terms_dict["LblInfoArea"] = "Área"
 terms_dict["LblInfoOferente"] = "Oferente"
-terms_dict["LblInfoTipoCurso"] = "Tipo"
+terms_dict["LblInfoTipoCurso"] = "Tipo curso"
 terms_dict["LblInfoTituloaObtener"] = "Título"
 terms_dict["LblInfoFechaInicio"] = "Inicio"
 terms_dict["LblInfoFechaTerminacion"] = "Fin"
 terms_dict["LblInfoDuracion"] = "Duración"
 terms_dict["LblInfoIdioma"] = "Idioma"
 terms_dict["LblInfoFechaRecepcion"] = "Entrega documentos"
-terms_dict["LblInfoFechaComite"] = "Fecha comité"
+terms_dict["LblInfoFechaComite"] = "Fecha comité becas"
 terms_dict["LblInfoInstitucion"] = "Institución"
 terms_dict["LblInfoCiudad"] = "Ciudad"
 #terms_dict["LblInfoPerfilAspirante"] = "Perfil"
 #terms_dict["LblInfoObjetivosPrograma"] = "Objetivos"
 #terms_dict["LblInfoContenidoPrograma"] = "Contenido"
+terms_dict["NUMEROBECAS"] = "Cantidad"
+terms_dict["PORCENTAJE"] = "Porcentaje"
+terms_dict["TIPO"] = "Cubrimiento"
+terms_dict["OBSERVACIONES"] = "Observaciones"
 
 
 # TODO contar el número de páginas
@@ -39,6 +43,8 @@ for page in range(1, 4+1):
 
     # Entrar a cada una de las convocatorias
     for call in range(0, 9+1):
+
+        print("Checking page: ",page,", call: ", call)
 
         # URL de la página del ICETEX a consultar las becas
         url = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=true"
@@ -88,9 +94,23 @@ for page in range(1, 4+1):
             if row.has_attr("id"):
                 dict.update({row["id"]: row.text})
 
-        scholarchipCalls.append(copy.copy(dict))
-        browser.close()
-        time.sleep(5)  # añadiendo delay
+        numberTable = soup.find("table", {"id": "GVNumeroBecas"})
+
+        if numberTable is not None:
+            numbers= numberTable.findAll("tr")
+
+            for number in numbers:
+                dict2=copy.copy(dict);
+                cells = number.findAll('td')
+                if(len(cells)==4):
+                    dict2.update({"NUMEROBECAS":cells[0].text})
+                    dict2.update({"PORCENTAJE   ": cells[1].text})
+                    dict2.update({"TIPO": cells[2].text})
+                    dict2.update({"OBSERVACIONES": cells[3].text.replace('\n', ' ').replace('\r', '')})
+                    scholarchipCalls.append(dict2)
+
+            browser.close()
+            time.sleep(5)  # añadiendo delay
 
 
 
