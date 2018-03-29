@@ -9,8 +9,11 @@ from bs4 import BeautifulSoup
 # crear la lista de convocatorias
 scholarchipCalls = []
 
+ID_label = "LblInfoConvocatoria"
+
 # diccionario de cabecera y campos
 terms_dict = {}
+terms_dict[ID_label] = "Código"
 terms_dict["LblInfoPais"] = "País"
 terms_dict["LblInfoPrograma"] = "Programa"
 terms_dict["LblInfoArea"] = "Área"
@@ -25,26 +28,25 @@ terms_dict["LblInfoFechaRecepcion"] = "Entrega documentos"
 terms_dict["LblInfoFechaComite"] = "Fecha comité becas"
 terms_dict["LblInfoInstitucion"] = "Institución"
 terms_dict["LblInfoCiudad"] = "Ciudad"
-#terms_dict["LblInfoPerfilAspirante"] = "Perfil"
-#terms_dict["LblInfoObjetivosPrograma"] = "Objetivos"
-#terms_dict["LblInfoContenidoPrograma"] = "Contenido"
+# terms_dict["LblInfoPerfilAspirante"] = "Perfil"
+# terms_dict["LblInfoObjetivosPrograma"] = "Objetivos"
+# terms_dict["LblInfoContenidoPrograma"] = "Contenido"
 terms_dict["NUMEROBECAS"] = "Cantidad"
 terms_dict["PORCENTAJE"] = "Porcentaje"
 terms_dict["TIPO"] = "Cubrimiento"
 terms_dict["OBSERVACIONES"] = "Observaciones"
 
-
 # TODO contar el número de páginas
 
 # Entrar a cada una de las páginas
-for page in range(1, 4+1):
+for page in range(1, 4 + 1):
 
-    #TODO contar el numero de convocatorias
+    # TODO contar el numero de convocatorias
 
     # Entrar a cada una de las convocatorias
-    for call in range(0, 9+1):
+    for call in range(0, 9 + 1):
 
-        print("Checking page: ",page,", call: ", call)
+        print("Checking page: ", page, ", call: ", call)
 
         # URL de la página del ICETEX a consultar las becas
         url = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=true"
@@ -60,7 +62,7 @@ for page in range(1, 4+1):
         # en este punto ya tenemos la tabla #GVConvocatorias con la lista de becas
         # hay que proceder a realizar la extracción de datos teniendo en cuenta la paginación
 
-        if(page>1):
+        if (page > 1):
             # IR A LA PAGINACIÓN
             browser.select_form("#form1")
             # añadir los parámetros escondidos, usar force=True
@@ -69,7 +71,7 @@ for page in range(1, 4+1):
             # identificador de la convocatoria
             browser.get_current_form().set("__EVENTARGUMENT", "Page$" + str(page), True)
             # enviar el formulario que consulta la convocatoria específica
-            responsePage= browser.submit_selected()
+            responsePage = browser.submit_selected()
 
         # ENTRAR A LA CONVOCATORIA
         browser.select_form("#form1")
@@ -84,35 +86,40 @@ for page in range(1, 4+1):
         # OBTENER DATOS DE LA CONVOCATORIA
         # obtener el soup a partir de la respuesta a la acción anterior
         soup = BeautifulSoup(responseCall.text, "html.parser")
-        # obtener cada fila de la tabla
-        rows = soup.findAll("span", {"class": "label1"})
+        # obetner el ID de la convocatoria
+        ID_element =soup.find("span", {"id": ID_label})
+        if ID_element is not None:
+            ID_value =ID_element.text
+            # crear diccionario de la convocatoria
+            dict = {}
+            # agregar el ID
+            dict.update({ID_label: ID_value})
 
-        # diccionario de la convocatoria
-        dict = {}
-        # alimentar el diccionario con las filas de la convocatoria
-        for row in rows:
-            if row.has_attr("id"):
-                dict.update({row["id"]: row.text})
+            # obtener cada fila de la tabla las cuales contienen los datos
+            rows = soup.findAll("span", {"class": "label1"})
 
-        numberTable = soup.find("table", {"id": "GVNumeroBecas"})
+            # alimentar el diccionario con las filas de la convocatoria
+            for csv_row in rows:
+                if csv_row.has_attr("id"):
+                    dict.update({csv_row["id"]: csv_row.text})
 
-        if numberTable is not None:
-            numbers= numberTable.findAll("tr")
+            numberTable = soup.find("table", {"id": "GVNumeroBecas"})
+
+
+            numbers = numberTable.findAll("tr")
 
             for number in numbers:
-                dict2=copy.copy(dict);
-                cells = number.findAll('td')
-                if(len(cells)==4):
-                    dict2.update({"NUMEROBECAS":cells[0].text})
-                    dict2.update({"PORCENTAJE   ": cells[1].text})
-                    dict2.update({"TIPO": cells[2].text})
-                    dict2.update({"OBSERVACIONES": cells[3].text.replace('\n', ' ').replace('\r', '')})
-                    scholarchipCalls.append(dict2)
+                    dict2 = copy.copy(dict);
+                    cells = number.findAll('td')
+                    if (len(cells) == 4):
+                        dict2.update({"NUMEROBECAS": cells[0].text})
+                        dict2.update({"PORCENTAJE   ": cells[1].text})
+                        dict2.update({"TIPO": cells[2].text})
+                        dict2.update({"OBSERVACIONES": cells[3].text})
+                        scholarchipCalls.append(dict2)
 
             browser.close()
-            time.sleep(5)  # añadiendo delay
-
-
+            time.sleep(0.5)  # añadiendo delay
 
 # Current directory where is located the script
 currentDir = os.path.dirname(__file__)
@@ -123,7 +130,9 @@ with open(filePath, 'w', newline='', encoding='utf-8') as csvFile:
     writer = csv.writer(csvFile)
     writer.writerow(terms_dict.values())
     for scholarship in scholarchipCalls:
-        list = []
+        csv_row = ""
         for term in terms_dict:
-            list.append(scholarship.get(term))
-        writer.writerow(list)
+            value = scholarship.get(term,"").replace('\n', ' ').replace('\r', '')
+            csv_row += value + '\t'
+
+        writer.writerow([csv_row])
