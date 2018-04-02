@@ -6,18 +6,6 @@ import mechanicalsoup
 from tqdm import tqdm
 from bs4 import BeautifulSoup
 
-
-### PARAMETROS ESCRITURA DEL ARCHIVO DE SALIDA
-
-# directorio actual donde se va a ubicar el archivo
-currentDir = os.path.dirname(__file__)
-# nombre del archivo
-filename = "scholarships.csv"
-# ruta completa del archivo
-filePath = os.path.join(currentDir, filename)
-# separador de columnas
-fieldSeparator = ';'
-
 ### PARAMETROS DE CAMPOS A LEER
 
 # crear la lista de convocatorias
@@ -128,7 +116,6 @@ for page in range(1, pages_max_index + 1):
                     dict.update({csv_row["id"]: csv_row.text})
 
             numberTable = soup.find("table", {"id": "GVNumeroBecas"})
-
             numbers = numberTable.findAll("tr")
 
             for number in numbers:
@@ -151,12 +138,23 @@ for page in range(1, pages_max_index + 1):
 # cerrar barra de priogreso
 progress_bar.close()
 
+### PARAMETROS ESCRITURA DEL ARCHIVO DE SALIDA
+
+# directorio actual donde se va a ubicar el archivo
+currentDir = os.path.dirname(__file__)
+# nombre del archivo
+filename = "scholarships.csv"
+# ruta completa del archivo
+filePath = os.path.join(currentDir, filename)
+# separador de columnas
+fieldSeparator = ','
+
 ### ESCRIBIR ARCHIVO DE SALIDA
 
 # escribir archivo de salida
 with open(filePath, 'w', newline='', encoding='utf-8') as csvFile:
     # se usa un escritor de diccionarios
-    writer = csv.DictWriter(csvFile, delimiter=fieldSeparator, fieldnames=terms_dict)
+    writer = csv.DictWriter(csvFile, delimiter=fieldSeparator, fieldnames=terms_dict, quoting=csv.QUOTE_ALL)
 
     # escribir cabecera personalizada
     writer.writerow(terms_dict)
