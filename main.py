@@ -3,8 +3,22 @@ import csv
 import copy
 import time
 import mechanicalsoup
-import requests
+from tqdm import tqdm
 from bs4 import BeautifulSoup
+
+
+### PARAMETROS ESCRITURA DEL ARCHIVO DE SALIDA
+
+# directorio actual donde se va a ubicar el archivo
+currentDir = os.path.dirname(__file__)
+# nombre del archivo
+filename = "scholarships.csv"
+# ruta completa del archivo
+filePath = os.path.join(currentDir, filename)
+# separador de columnas
+fieldSeparator = ';'
+
+### PARAMETROS DE CAMPOS A LEER
 
 # crear la lista de convocatorias
 scholarchipCalls = []
@@ -34,19 +48,25 @@ terms_dict["LblInfoCiudad"] = "Ciudad"
 terms_dict["NUMEROBECAS"] = "Cantidad"
 terms_dict["PORCENTAJE"] = "Porcentaje"
 terms_dict["TIPO"] = "Cubrimiento"
-terms_dict["OBSERVACIONES"] = "Observaciones"
+# terms_dict["OBSERVACIONES"] = "Observaciones"
 
 # TODO contar el número de páginas
 
+
+calls_max_index = 9
+pages_max_index = 4
+total_calls = (calls_max_index + 1) * pages_max_index
+progress_bar = tqdm(total=total_calls)
+
+### INICIAR LA NAVEGACIÖN
+
 # Entrar a cada una de las páginas
-for page in range(1, 4 + 1):
+for page in range(1, pages_max_index + 1):
 
     # TODO contar el numero de convocatorias
 
-    # Entrar a cada una de las convocatorias
-    for call in range(0, 9 + 1):
-
-        print("Checking page: ", page, ", call: ", call)
+    # entrar a cada una de las convocatorias desplegadas en esa página
+    for call in range(0, calls_max_index + 1):
 
         # URL de la página del ICETEX a consultar las becas
         url = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=true"
@@ -55,10 +75,13 @@ for page in range(1, 4 + 1):
         browser.open(url)  # se abre la URL
 
         # LISTAR TODAS LAS CONVOCATORIAS
-        # Esta página muestra las becas solo cuando se da click en la opción "Todas"
-        browser.select_form("#form1")  # seleccionamos el formulario
-        browser["RBLOpcionBuscar"] = "Todas"  # seleccionamos que busque con la opción "Todas"
-        response = browser.submit_selected()  # enviamos el fomulario y capturamos las respuestas
+        # esta página muestra las becas solo cuando se da click en la opción "Todas"
+        # seleccionamos el formulario
+        browser.select_form("#form1")
+        # seleccionamos que busque con la opción "Todas"
+        browser["RBLOpcionBuscar"] = "Todas"
+        # enviamos el fomulario y capturamos las respuestas
+        response = browser.submit_selected()
         # en este punto ya tenemos la tabla #GVConvocatorias con la lista de becas
         # hay que proceder a realizar la extracción de datos teniendo en cuenta la paginación
 
@@ -87,9 +110,9 @@ for page in range(1, 4 + 1):
         # obtener el soup a partir de la respuesta a la acción anterior
         soup = BeautifulSoup(responseCall.text, "html.parser")
         # obetner el ID de la convocatoria
-        ID_element =soup.find("span", {"id": ID_label})
+        ID_element = soup.find("span", {"id": ID_label})
         if ID_element is not None:
-            ID_value =ID_element.text
+            ID_value = ID_element.text
             # crear diccionario de la convocatoria
             dict = {}
             # agregar el ID
@@ -100,39 +123,46 @@ for page in range(1, 4 + 1):
 
             # alimentar el diccionario con las filas de la convocatoria
             for csv_row in rows:
-                if csv_row.has_attr("id"):
+                # si es un un campo que nos interesa
+                if csv_row.has_attr("id") & terms_dict.keys().__contains__(csv_row["id"]):
                     dict.update({csv_row["id"]: csv_row.text})
 
             numberTable = soup.find("table", {"id": "GVNumeroBecas"})
 
-
             numbers = numberTable.findAll("tr")
 
             for number in numbers:
-                    dict2 = copy.copy(dict);
-                    cells = number.findAll('td')
-                    if (len(cells) == 4):
-                        dict2.update({"NUMEROBECAS": cells[0].text})
-                        dict2.update({"PORCENTAJE   ": cells[1].text})
-                        dict2.update({"TIPO": cells[2].text})
-                        dict2.update({"OBSERVACIONES": cells[3].text})
-                        scholarchipCalls.append(dict2)
+                dict2 = copy.copy(dict)
+                cells = number.findAll('td')
+                if (len(cells) == 4):
+                    dict2.update({"NUMEROBECAS": cells[0].text})
+                    dict2.update({"PORCENTAJE": cells[1].text})
+                    dict2.update({"TIPO": cells[2].text})
+                    # dict2.update({"OBSERVACIONES": cells[3].text})
+                    scholarchipCalls.append(dict2)
 
-            browser.close()
-            time.sleep(0.5)  # añadiendo delay
+        # cerrar el navegador
+        browser.close()
+        # actualizar la barra de progreso
+        progress_bar.update(1)
+        # añadiendo delay
+        time.sleep(0.1)
 
-# Current directory where is located the script
-currentDir = os.path.dirname(__file__)
-filename = "scholarships.csv"
-filePath = os.path.join(currentDir, filename)
+# cerrar barra de priogreso
+progress_bar.close()
 
+### ESCRIBIR ARCHIVO DE SALIDA
+
+# escribir archivo de salida
 with open(filePath, 'w', newline='', encoding='utf-8') as csvFile:
-    writer = csv.writer(csvFile)
-    writer.writerow(terms_dict.values())
-    for scholarship in scholarchipCalls:
-        csv_row = ""
-        for term in terms_dict:
-            value = scholarship.get(term,"").replace('\n', ' ').replace('\r', '')
-            csv_row += value + '\t'
+    # se usa un escritor de diccionarios
+    writer = csv.DictWriter(csvFile, delimiter=fieldSeparator, fieldnames=terms_dict)
 
-        writer.writerow([csv_row])
+    # escribir cabecera personalizada
+    writer.writerow(terms_dict)
+
+    # escribir valores por cada beca
+    for scholarship in scholarchipCalls:
+        writer.writerow(scholarship)
+
+
