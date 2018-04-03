@@ -1,7 +1,6 @@
 import os
 import csv
 import copy
-import time
 import mechanicalsoup
 from tqdm import tqdm
 from bs4 import BeautifulSoup
@@ -72,14 +71,14 @@ def getTotalCalls(url):
     return number
 
 
-def getCallsList(url):
+def getCallsList(desc, url):
     # crear la lista de convocatorias
     callsList = []
 
     total_calls = getTotalCalls(url)
     calls_max_index = 9
     pages_max_index = int(total_calls/calls_max_index) + 1
-    progress_bar = tqdm(total=total_calls)
+    progress_bar = tqdm(total=total_calls, desc=desc)
 
     ### INICIAR LA NAVEGACIÖN
 
@@ -226,16 +225,16 @@ def writeResults(filename, callsList):
 
 # URL de la página del ICETEX a consultar las becas
 
-url1 = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=true"
-callsList1 = getCallsList(url1)
-# nombre del archivo
 filename1 = "vigentes.csv"
+url1 = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=true"
+callsList1 = getCallsList(desc=filename1, url=url1)
+
 writeResults(filename1, callsList1)
 
-url2 = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=false"
-callsList2 = getCallsList(url2)
-# nombre del archivo
 filename2 = "historicas.csv"
+url2 = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=false"
+callsList2 = getCallsList(desc=filename2, url=url2)
+
 writeResults(filename2, callsList2)
 
 
