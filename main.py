@@ -86,39 +86,56 @@ def getScholarships(url):
     # Entrar a cada una de las páginas
     for page in range(1, pages_max_index + 1):
 
-        # TODO contar el numero de convocatorias
+
 
         # entrar a cada una de las convocatorias desplegadas en esa página
         for call in range(0, calls_max_index + 1):
 
+            # se define el browser con el user_agent
+            browser = mechanicalsoup.StatefulBrowser(
+                user_agent=userAgent)
+            browser.open(url)  # se abre la URL
+
+            # LISTAR TODAS LAS CONVOCATORIAS
+            # esta página muestra las becas solo cuando se da click en la opción "Todas"
+            # seleccionamos el formulario
+            browser.select_form("#form1")
+            # seleccionamos que busque con la opción "Todas"
+            browser["RBLOpcionBuscar"] = "Todas"
+            # enviamos el fomulario y capturamos las respuestas
+            response = browser.submit_selected()
+            # en este punto ya tenemos la tabla #GVConvocatorias con la lista de becas
+            # hay que proceder a realizar la extracción de datos teniendo en cuenta la paginación
+
+            if (page > 1):
+
+                # avanzar en paginación, sólo si es una página posterior a la 11
+                if page > 11:
+                    for p in range(11, page):
+                        # no hay necesidad de ir página por página, sino de 10 en 10 e.j 11, 21, 31...
+                        if p % 10 == 1:
+                            browser.select_form("#form1")
+                            # añadir los parámetros escondidos, usar force=True
+                            # opción de consulta de convocatoria
+                            browser.get_current_form().set("__EVENTTARGET", "GVConvocatorias", True)
+                            # identificador de la convocatoria
+                            browser.get_current_form().set("__EVENTARGUMENT", "Page$" + str(p), True)
+                            # enviar el formulario que consulta la convocatoria específica
+                            responsePage = browser.submit_selected()
+
+                # ir a la páginación especifica
+                browser.select_form("#form1")
+                # añadir los parámetros escondidos, usar force=True
+                # opción de consulta de convocatoria
+                browser.get_current_form().set("__EVENTTARGET", "GVConvocatorias", True)
+                # identificador de la convocatoria
+                browser.get_current_form().set("__EVENTARGUMENT", "Page$" + str(page), True)
+                # enviar el formulario que consulta la convocatoria específica
+                responsePage = browser.submit_selected()
+
+
             if(progress_bar.n < progress_bar.total):
 
-                # se define el browser con el user_agent
-                browser = mechanicalsoup.StatefulBrowser(
-                    user_agent=userAgent)
-                browser.open(url)  # se abre la URL
-
-                # LISTAR TODAS LAS CONVOCATORIAS
-                # esta página muestra las becas solo cuando se da click en la opción "Todas"
-                # seleccionamos el formulario
-                browser.select_form("#form1")
-                # seleccionamos que busque con la opción "Todas"
-                browser["RBLOpcionBuscar"] = "Todas"
-                # enviamos el fomulario y capturamos las respuestas
-                response = browser.submit_selected()
-                # en este punto ya tenemos la tabla #GVConvocatorias con la lista de becas
-                # hay que proceder a realizar la extracción de datos teniendo en cuenta la paginación
-
-                if (page > 1):
-                    # IR A LA PAGINACIÓN
-                    browser.select_form("#form1")
-                    # añadir los parámetros escondidos, usar force=True
-                    # opción de consulta de convocatoria
-                    browser.get_current_form().set("__EVENTTARGET", "GVConvocatorias", True)
-                    # identificador de la convocatoria
-                    browser.get_current_form().set("__EVENTARGUMENT", "Page$" + str(page), True)
-                    # enviar el formulario que consulta la convocatoria específica
-                    responsePage = browser.submit_selected()
 
                 # ENTRAR A LA CONVOCATORIA
                 browser.select_form("#form1")
@@ -208,8 +225,6 @@ def writeResults(filename, scholarchipCalls):
         # escribir valores por cada beca
         for scholarship in scholarchipCalls:
             writer.writerow(scholarship)
-
-
 
 
 ##################################################################
