@@ -72,9 +72,9 @@ def getTotalCalls(url):
     return number
 
 
-def getScholarships(url):
+def getCallsList(url):
     # crear la lista de convocatorias
-    scholarchipCalls = []
+    callsList = []
 
     total_calls = getTotalCalls(url)
     calls_max_index = 9
@@ -83,61 +83,58 @@ def getScholarships(url):
 
     ### INICIAR LA NAVEGACIÖN
 
-    # Entrar a cada una de las páginas
+    # entrar a cada una de las páginas
     for page in range(1, pages_max_index + 1):
-
-
 
         # entrar a cada una de las convocatorias desplegadas en esa página
         for call in range(0, calls_max_index + 1):
 
-            # se define el browser con el user_agent
-            browser = mechanicalsoup.StatefulBrowser(
-                user_agent=userAgent)
-            browser.open(url)  # se abre la URL
-
-            # LISTAR TODAS LAS CONVOCATORIAS
-            # esta página muestra las becas solo cuando se da click en la opción "Todas"
-            # seleccionamos el formulario
-            browser.select_form("#form1")
-            # seleccionamos que busque con la opción "Todas"
-            browser["RBLOpcionBuscar"] = "Todas"
-            # enviamos el fomulario y capturamos las respuestas
-            response = browser.submit_selected()
-            # en este punto ya tenemos la tabla #GVConvocatorias con la lista de becas
-            # hay que proceder a realizar la extracción de datos teniendo en cuenta la paginación
-
-            if (page > 1):
-
-                # avanzar en paginación, sólo si es una página posterior a la 11
-                if page > 11:
-                    for p in range(11, page):
-                        # no hay necesidad de ir página por página, sino de 10 en 10 e.j 11, 21, 31...
-                        if p % 10 == 1:
-                            browser.select_form("#form1")
-                            # añadir los parámetros escondidos, usar force=True
-                            # opción de consulta de convocatoria
-                            browser.get_current_form().set("__EVENTTARGET", "GVConvocatorias", True)
-                            # identificador de la convocatoria
-                            browser.get_current_form().set("__EVENTARGUMENT", "Page$" + str(p), True)
-                            # enviar el formulario que consulta la convocatoria específica
-                            responsePage = browser.submit_selected()
-
-                # ir a la páginación especifica
-                browser.select_form("#form1")
-                # añadir los parámetros escondidos, usar force=True
-                # opción de consulta de convocatoria
-                browser.get_current_form().set("__EVENTTARGET", "GVConvocatorias", True)
-                # identificador de la convocatoria
-                browser.get_current_form().set("__EVENTARGUMENT", "Page$" + str(page), True)
-                # enviar el formulario que consulta la convocatoria específica
-                responsePage = browser.submit_selected()
-
-
+            # si aún no hemos llegado al final
             if(progress_bar.n < progress_bar.total):
 
+                # se define el browser con el user_agent
+                browser = mechanicalsoup.StatefulBrowser(
+                    user_agent=userAgent)
+                browser.open(url)  # se abre la URL
 
-                # ENTRAR A LA CONVOCATORIA
+                # LISTAR TODAS LAS CONVOCATORIAS
+                # esta página muestra las becas solo cuando se da click en la opción "Todas"
+                # seleccionamos el formulario
+                browser.select_form("#form1")
+                # seleccionamos que busque con la opción "Todas"
+                browser["RBLOpcionBuscar"] = "Todas"
+                # enviamos el fomulario y capturamos las respuestas
+                response = browser.submit_selected()
+                # en este punto ya tenemos la tabla #GVConvocatorias con la lista de becas
+                # hay que proceder a realizar la extracción de datos teniendo en cuenta la paginación
+
+                if (page > 1):
+
+                    # avanzar en paginación, sólo si es una página posterior a la 11
+                    if (page > 11):
+                        for jump_page in range(11, page):
+                            # no hay necesidad de ir página por página, sino de 10 en 10 e.j 11, 21, 31...
+                            if jump_page % 10 == 1:
+                                browser.select_form("#form1")
+                                # añadir los parámetros escondidos, usar force=True
+                                # opción de consulta de convocatoria
+                                browser.get_current_form().set("__EVENTTARGET", "GVConvocatorias", True)
+                                # identificador de la convocatoria
+                                browser.get_current_form().set("__EVENTARGUMENT", "Page$" + str(jump_page), True)
+                                # enviar el formulario que consulta la convocatoria específica
+                                responsePage = browser.submit_selected()
+
+                    # ir a la páginación especifica
+                    browser.select_form("#form1")
+                    # añadir los parámetros escondidos, usar force=True
+                    # opción de consulta de convocatoria
+                    browser.get_current_form().set("__EVENTTARGET", "GVConvocatorias", True)
+                    # identificador de la convocatoria
+                    browser.get_current_form().set("__EVENTARGUMENT", "Page$" + str(page), True)
+                    # enviar el formulario que consulta la convocatoria específica
+                    responsePage = browser.submit_selected()
+
+                # entrar a la convocatoria específica
                 browser.select_form("#form1")
                 # añadir los parámetros escondidos, usar force=True
                 # opción de consulta de convocatoria
@@ -186,27 +183,25 @@ def getScholarships(url):
                                     if(terms_dict.keys().__contains__(tittles[j].text)):
                                         value = cleanValue(cells[j].text)
                                         dict2.update({tittles[j].text: value})
-                                scholarchipCalls.append(dict2)
+                                callsList.append(dict2)
                     else:
-                        scholarchipCalls.append(dict)
+                        callsList.append(dict)
 
                 # cerrar el navegador
                 browser.close()
                 # actualizar la barra de progreso
                 progress_bar.update(1)
                 # añadiendo delay
-                time.sleep(0.1)
+                # time.sleep(0.1)
 
-    # cerrar barra de priogreso
+    # cerrar barra de progreso
     progress_bar.close()
-    return scholarchipCalls
+    return callsList
 
-def writeResults(filename, scholarchipCalls):
-    ### PARAMETROS ESCRITURA DEL ARCHIVO DE SALIDA
-
+def writeResults(filename, callsList):
+    # PARAMETROS ESCRITURA DEL ARCHIVO DE SALIDA
     # directorio actual donde se va a ubicar el archivo
     currentDir = os.path.dirname(__file__)
-
     # ruta completa del archivo
     filePath = os.path.join(currentDir, filename)
     # separador de columnas
@@ -223,8 +218,8 @@ def writeResults(filename, scholarchipCalls):
         writer.writerow(terms_dict)
 
         # escribir valores por cada beca
-        for scholarship in scholarchipCalls:
-            writer.writerow(scholarship)
+        for call in callsList:
+            writer.writerow(call)
 
 
 ##################################################################
@@ -232,16 +227,16 @@ def writeResults(filename, scholarchipCalls):
 # URL de la página del ICETEX a consultar las becas
 
 url1 = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=true"
-scholarchipCalls1 = getScholarships(url1)
+callsList1 = getCallsList(url1)
 # nombre del archivo
 filename1 = "vigentes.csv"
-writeResults(filename1, scholarchipCalls1)
+writeResults(filename1, callsList1)
 
 url2 = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=false"
-scholarchipCalls2 = getScholarships(url2)
+callsList2 = getCallsList(url2)
 # nombre del archivo
-filename2 = "vencidas.csv"
-writeResults(filename2, scholarchipCalls2)
+filename2 = "historicas.csv"
+writeResults(filename2, callsList2)
 
 
 ##################################################################
