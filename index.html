@@ -62,7 +62,8 @@
             $('#vtable').DataTable({
                 data: vigentes,
                 paging: false,
-                buttons: ['copy', 'csv', 'excel'],
+                dom: 'Bfrtip',
+                buttons: ['copy', 'csv'],
                 columns: [
                     { title: "Código" },
                     { title: "País" },
