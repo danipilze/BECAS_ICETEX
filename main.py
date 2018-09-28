@@ -2,6 +2,7 @@ import json
 import os
 import csv
 import copy
+import re
 import mechanicalsoup
 from tqdm import tqdm
 from bs4 import BeautifulSoup
@@ -249,6 +250,7 @@ def writeJSArray(filename, callsList):
 
         row = row.replace("{","[")
         row = row.replace("}", "],")
+        row = re.sub('\(([^\)]+)\)', '', row)
         row+="\n"
         file.write(row)
 

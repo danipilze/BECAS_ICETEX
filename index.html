@@ -48,6 +48,10 @@
         table {
             font-size: 0.8em;
         }
+        table.dataTable tbody td {
+    word-break: break-word;
+    vertical-align: top;
+}
 
     </style>
 
@@ -58,7 +62,6 @@
             $('#vtable').DataTable({
                 data: vigentes,
                 paging: false,
-                dom: 'Bfrtip',
                 buttons: ['copy', 'csv', 'excel'],
                 columns: [
                     { title: "Código" },
@@ -69,16 +72,16 @@
                     { title: "Tipo curso" },
                     { title: "Título" },
                     { title: "Inicio" },
-                    { title: "Fin" },
+                    { title: "Fin", visible: false  },
                     { title: "Duración" },
                     { title: "Idioma" },
-                    { title: "Entrega documentos" },
-                    { title: "Fecha comité becas" },
+                    { title: "Fecha límite" },
+                    { title: "Fecha comité becas", visible: false },
                     { title: "Institución" },
                     { title: "Ciudad" },
                     { title: "Cantidad" },
-                    { title: "Porcentaje" },
-                    { title: "Cubrimiento" },
+                    { title: "%" },
+                    { title: "Cubrimiento", visible: false },
                     { title: "Observaciones", visible: false },
 
                 ]
