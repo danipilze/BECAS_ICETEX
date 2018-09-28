@@ -1,0 +1,61 @@
+<html>
+
+<head>
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/autofill/2.3.0/css/autoFill.bootstrap4.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.2/css/responsive.bootstrap4.min.css" />
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/autofill/2.3.0/js/dataTables.autoFill.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/autofill/2.3.0/js/autoFill.bootstrap4.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.2/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.2/js/responsive.bootstrap4.min.js"></script>
+
+
+
+    <script type="text/javascript" src="vigentes.js"></script>
+    <script type="text/javascript">
+
+
+        $(document).ready(function () {
+            $('#table').DataTable({
+                data: vigentes,
+                columns: [
+                    { title: "Código" },
+                    { title: "País" },
+                    { title: "Programa" },
+                    { title: "Área" },
+                    { title: "Oferente" },
+                    { title: "Tipo curso" },
+                    { title: "Título" },
+                    { title: "Inicio" },
+                    { title: "Fin" },
+                    { title: "Duración" },
+                    { title: "Idioma" },
+                    { title: "Entrega documentos" },
+                    { title: "Fecha comité becas" },
+                    { title: "Institución" },
+                    { title: "Ciudad" },
+                    { title: "Cantidad" },
+                    { title: "Porcentaje" },
+                    { title: "Cubrimiento" },
+                    { title: "Observaciones" },
+
+                ]
+            });
+        });
+
+
+    </script>
+</head>
+
+<body>
+    <table id="table" class="display" style="width:100%"> </table>
+</body>
+
+</html>

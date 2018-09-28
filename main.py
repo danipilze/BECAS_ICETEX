@@ -1,3 +1,4 @@
+import json
 import os
 import csv
 import copy
@@ -197,7 +198,7 @@ def getCallsList(desc, url):
     progress_bar.close()
     return callsList
 
-def writeResults(filename, callsList):
+def writeCSV(filename, callsList):
     # PARAMETROS ESCRITURA DEL ARCHIVO DE SALIDA
     # directorio actual donde se va a ubicar el archivo
     currentDir = os.path.dirname(__file__)
@@ -221,21 +222,56 @@ def writeResults(filename, callsList):
             writer.writerow(call)
 
 
+def writeJSArray(filename, callsList):
+    # PARAMETROS ESCRITURA DEL ARCHIVO DE SALIDA
+    # directorio actual donde se va a ubicar el archivo
+    currentDir = os.path.dirname(__file__)
+    # ruta completa del archivo
+    filePath = os.path.join(currentDir, filename)
+    # separador de columnas
+    fieldSeparator = ','
+
+    ### ESCRIBIR ARCHIVO DE SALIDA
+
+    # escribir archivo de salida
+
+    file = open(filePath, "w")
+
+    # escribir cabecera personalizada
+    #file.write(str(terms_dict))
+    file.write("var vigentes=[\n")
+
+    # escribir valores por cada beca
+    for call in callsList:
+        row = str(call)
+        for term in terms_dict.keys():
+            row = row.replace("'"+str(term)+"': ","")
+
+        row = row.replace("{","[")
+        row = row.replace("}", "],")
+        row+="\n"
+        file.write(row)
+
+    file.write("]")
+    file.close()
+
 ##################################################################
 
 # URL de la página del ICETEX a consultar las becas
 
-filename1 = "vigentes.csv"
+fileCSV1 = "vigentes.csv"
+fileJS1 = "vigentes.js"
 url1 = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=true"
-callsList1 = getCallsList(desc=filename1, url=url1)
+callsList1 = getCallsList(desc=fileCSV1, url=url1)
+writeCSV(fileCSV1, callsList1)
+writeJSArray(fileJS1, callsList1)
 
-writeResults(filename1, callsList1)
 
-filename2 = "historicas.csv"
-url2 = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=false"
-callsList2 = getCallsList(desc=filename2, url=url2)
+# fileCSV2 = "historicas.csv"
+# url2 = "https://www.icetex.gov.co/SIORI_WEB/Convocatorias.aspx?aplicacion=1&vigente=false"
+# callsList2 = getCallsList(desc=fileCSV2, url=url2)
 
-writeResults(filename2, callsList2)
+# writeCSV(fileCSV2, callsList2)
 
 
 ##################################################################
