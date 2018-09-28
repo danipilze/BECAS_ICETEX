@@ -20,11 +20,5 @@ Nombre: Convocatorias vigentes e históricas de becas de estudio en el exterior 
 
 Descripción: Es una lista convocatorias vigentes e históricas para becas parciales y totales para estudios en el extranjero, describiendo su cantidad, sus términos y condiciones.
 
-Formato archivos:
 
-* Separador de campos:  coma `(,)`.
-* _Enclosing_ de los campos: comilla doble, para todos los campos `(“)`.
-* Codificación: `UTF-8`
-* Valor dato nulo:  string vacío `(“”)`
-* Salto de línea: `(\n\r)`
 
