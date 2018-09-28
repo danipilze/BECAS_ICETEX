@@ -53,14 +53,14 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         table.dataTable tbody td {
-            word-break: break-word;
+            word-break: keep-all;
             vertical-align: top;
 }
 
         .info {
             border: 1px solid;
             margin: 10px 0px;
-            padding:15px 10px;
+            padding: 5px 5px;
             background-color: #bde5f8;
             color: #00529b;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -75,7 +75,7 @@
         $(document).ready(function () {
             var date = new Date(document.lastModified);
 
-            $("#pdate").text("Última actualización: " + date);
+            $("#pdate").append(". Última actualización: " + date);
 
 
             $('#vtable').DataTable({
@@ -113,7 +113,9 @@
 </head>
 
 <body>
-    <div class="info" id="pdate"> </div>
+    <div class="info" id="pdate"> Para información más detallada consultar en 
+        <a href="https://portal.icetex.gov.co/Portal/Home/HomeEstudiante/becas/becas-para-estudios-en-el-exterior/becas-vigentes/"><strong> Becas ICETEX</strong></a>
+    </div>
     <table id="vtable" class="display" style="width:100%"> </table>
 </body>
 
