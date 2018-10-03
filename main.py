@@ -3,6 +3,7 @@ import os
 import csv
 import copy
 import re
+import codecs
 import mechanicalsoup
 from tqdm import tqdm
 from bs4 import BeautifulSoup
@@ -236,7 +237,7 @@ def writeJSArray(filename, callsList):
 
     # escribir archivo de salida
 
-    file = open(filePath, "w")
+    file = codecs.open(filePath, "w", "utf-8")
 
     # escribir cabecera personalizada
     #file.write(str(terms_dict))
